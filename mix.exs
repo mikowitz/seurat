@@ -8,7 +8,8 @@ defmodule Seurat.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      elixirc_paths: compiler_paths(Mix.env())
     ]
   end
 
@@ -24,7 +25,8 @@ defmodule Seurat.MixProject do
     [
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24", only: [:dev, :test], runtime: false},
-      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:nimble_csv, "~> 1.1", only: [:dev, :test]}
     ]
   end
 
@@ -35,4 +37,8 @@ defmodule Seurat.MixProject do
       plt_add_apps: [:ex_unit]
     ]
   end
+
+  defp compiler_paths(:test), do: ["test/support"] ++ compiler_paths(:prod)
+  defp compiler_paths(:dev), do: compiler_paths(:test)
+  defp compiler_paths(_), do: ["lib"]
 end
