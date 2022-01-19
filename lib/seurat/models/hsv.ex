@@ -65,6 +65,7 @@ defmodule Seurat.Models.Hsv do
   defp normalize_hue(hue), do: :math.fmod(hue, 360)
 
   use Seurat.Inspect, [:hue, :saturation, :value]
+  use Seurat.Model, "Cylindrical"
 
   defimpl Seurat.Conversions.FromRgb do
     def convert(%{red: r, green: g, blue: b}) do
@@ -88,6 +89,38 @@ defmodule Seurat.Models.Hsv do
       v = cmax
 
       Seurat.Models.Hsv.new(h, s, v)
+    end
+  end
+
+  defimpl Seurat.Conversions.FromHsv do
+    def convert(hsv), do: hsv
+  end
+
+  defimpl Seurat.Conversions.FromHsl do
+    def convert(%{hue: h, saturation: s, lightness: l}) do
+      v = l + s * min(l, 1 - l)
+
+      s =
+        if v == 0 do
+          0
+        else
+          2 * (1 - l / v)
+        end
+
+      Seurat.Models.Hsv.new(h, s, v)
+    end
+  end
+
+  defimpl Seurat.Conversions.FromHwb do
+    def convert(%{hue: h, whiteness: w, blackness: b}) do
+      case 1 - b do
+        0.0 ->
+          Seurat.Models.Hsv.new(h, 0, 0)
+
+        v ->
+          s = 1 - w / v
+          Seurat.Models.Hsv.new(h, s, v)
+      end
     end
   end
 end

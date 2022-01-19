@@ -41,4 +41,5 @@ defmodule Seurat.Models.Yxy do
   end
 
   use Seurat.Inspect, [:x, :y, :luma]
+  use Seurat.Model, "CIE"
 end

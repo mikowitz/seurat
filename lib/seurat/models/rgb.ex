@@ -68,8 +68,38 @@ defmodule Seurat.Models.Rgb do
   end
 
   use Seurat.Inspect, [:red, :green, :blue]
+  use Seurat.Model, "RGB"
 
   defimpl Seurat.Conversions.FromRgb do
     def convert(rgb), do: rgb
+  end
+
+  defimpl Seurat.Conversions.FromHsv do
+    # https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB_alternative
+    def convert(%{hue: h, saturation: s, value: v}) do
+      f = fn n ->
+        k = :math.fmod(n + h / 60, 6)
+        v - v * s * max(0, Enum.min([k, 4 - k, 1]))
+      end
+
+      [r, g, b] = Enum.map([5, 3, 1], &f.(&1))
+
+      Seurat.Models.Rgb.new(r, g, b)
+    end
+  end
+
+  defimpl Seurat.Conversions.FromHsl do
+    # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative
+    def convert(%{hue: h, saturation: s, lightness: l}) do
+      f = fn n ->
+        k = :math.fmod(n + h / 30, 12)
+        a = s * min(l, 1 - l)
+        l - a * max(-1, Enum.min([k - 3, 9 - k, 1]))
+      end
+
+      [r, g, b] = Enum.map([0, 8, 4], &f.(&1))
+
+      Seurat.Models.Rgb.new(r, g, b)
+    end
   end
 end

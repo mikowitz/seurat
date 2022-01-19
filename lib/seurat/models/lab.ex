@@ -56,4 +56,5 @@ defmodule Seurat.Models.Lab do
   end
 
   use Seurat.Inspect, [:l, :a, :b]
+  use Seurat.Model, "CIE"
 end
