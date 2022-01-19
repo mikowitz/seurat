@@ -41,16 +41,53 @@ defmodule Seurat.Models.Hsv do
 
       iex> Hsv.new(120, 0.5, 0.75)
       #Seurat.Models.Hsv<120.0, 0.5, 0.75>
+
+  As hue is measured on a circle, its value will be normalized to be in the
+  range between [0 and 360)
+
+      iex> Hsv.new(-10, 0.5, 0.5)
+      #Seurat.Models.Hsv<350.0, 0.5, 0.5>
+
+      iex> Hsv.new(400, 0.5, 0.5)
+      #Seurat.Models.Hsv<40.0, 0.5, 0.5>
   """
   @spec new(number, number, number) :: __MODULE__.t()
   def new(hue, saturation, value)
       when is_number(hue) and is_number(saturation) and is_number(value) do
     %__MODULE__{
-      hue: hue / 1,
+      hue: normalize_hue(hue / 1),
       saturation: saturation / 1,
       value: value / 1
     }
   end
 
+  defp normalize_hue(hue) when hue < 0, do: normalize_hue(hue + 360)
+  defp normalize_hue(hue), do: :math.fmod(hue, 360)
+
   use Seurat.Inspect, [:hue, :saturation, :value]
+
+  defimpl Seurat.Conversions.FromRgb do
+    def convert(%{red: r, green: g, blue: b}) do
+      {cmin, cmax} = Enum.min_max([r, g, b])
+      delta = cmax - cmin
+
+      h =
+        cond do
+          delta == 0 -> 0
+          cmax == r -> 60 * :math.fmod((g - b) / delta, 6)
+          cmax == g -> 60 * ((b - r) / delta + 2)
+          cmax == b -> 60 * ((r - g) / delta + 4)
+        end
+
+      s =
+        case cmax do
+          0.0 -> 0.0
+          _ -> delta / cmax
+        end
+
+      v = cmax
+
+      Seurat.Models.Hsv.new(h, s, v)
+    end
+  end
 end

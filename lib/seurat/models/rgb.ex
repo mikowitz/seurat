@@ -68,4 +68,8 @@ defmodule Seurat.Models.Rgb do
   end
 
   use Seurat.Inspect, [:red, :green, :blue]
+
+  defimpl Seurat.Conversions.FromRgb do
+    def convert(rgb), do: rgb
+  end
 end

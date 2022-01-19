@@ -45,4 +45,27 @@ defmodule Seurat.Models.Xyz do
   end
 
   use Seurat.Inspect, [:x, :y, :z]
+
+  defimpl Seurat.Conversions.FromRgb do
+    def convert(%{red: r, green: g, blue: b}) do
+      with [r, g, b] <- Enum.map([r, g, b], &inverse_companding/1) do
+        x = calculate_channel(r, g, b, 0.4124564, 0.3575761, 0.1804375)
+        y = calculate_channel(r, g, b, 0.2126729, 0.7151522, 0.0721750)
+        z = calculate_channel(r, g, b, 0.0193339, 0.1191920, 0.9503041)
+
+        Seurat.Models.Xyz.new(x, y, z)
+      end
+    end
+
+    # For now we're only using sRGB, so that's the companding we use
+    defp inverse_companding(v) when v <= 0.04045, do: v / 12.92
+
+    defp inverse_companding(v) do
+      :math.pow((v + 0.055) / 1.055, 2.4)
+    end
+
+    defp calculate_channel(r, g, b, m1, m2, m3) do
+      r * m1 + g * m2 + b * m3
+    end
+  end
 end

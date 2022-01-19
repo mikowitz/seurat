@@ -15,7 +15,11 @@ defmodule Seurat.ColorMine do
   defp into_structs(row) do
     %{
       color: row.color,
-      rgb: Seurat.Models.Rgb.new(row.rgb_r, row.rgb_g, row.rgb_b)
+      rgb: Seurat.Models.Rgb.new(row.rgb_r, row.rgb_g, row.rgb_b),
+      hsv: Seurat.Models.Hsv.new(row.hsv_h, row.hsv_s, row.hsv_v),
+      hsl: Seurat.Models.Hsl.new(row.hsl_h, row.hsl_s, row.hsl_l),
+      xyz: Seurat.Models.Xyz.new(row.xyz_x, row.xyz_y, row.xyz_z),
+      hwb: Seurat.Models.Hwb.new(row.hwb_h, row.hwb_w, row.hwb_b)
     }
   end
 
