@@ -1,18 +1,35 @@
 defmodule Seurat do
-  @moduledoc """
-  Documentation for `Seurat`.
-  """
+  alias Seurat.Models.{
+    Hsl,
+    Hsv,
+    Hwb,
+    Lab,
+    Luv,
+    Rgb,
+    Xyz,
+    Yxy
+  }
 
-  @doc """
-  Hello world.
+  @type color ::
+          Hsl.t()
+          | Hsv.t()
+          | Hwb.t()
+          | Lab.t()
+          | Luv.t()
+          | Rgb.t()
+          | Xyz.t()
+          | Yxy.t()
 
-  ## Examples
+  @spec to(color(), atom) :: color
+  def to(color, target_colorspace) do
+    Module.concat(
+      conversion_protocol(color.__struct__),
+      target_colorspace
+    ).convert(color)
+  end
 
-      iex> Seurat.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  defp conversion_protocol(source_colorspace) do
+    from = source_colorspace |> Module.split() |> List.last()
+    Module.concat(Seurat.Conversions, :"From#{from}")
   end
 end
