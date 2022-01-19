@@ -45,6 +45,7 @@ defmodule Seurat.Models.Xyz do
   end
 
   use Seurat.Inspect, [:x, :y, :z]
+  use Seurat.Model, "CIE"
 
   defimpl Seurat.Conversions.FromRgb do
     def convert(%{red: r, green: g, blue: b}) do

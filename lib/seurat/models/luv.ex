@@ -44,4 +44,5 @@ defmodule Seurat.Models.Luv do
   end
 
   use Seurat.Inspect, [:l, :u, :v]
+  use Seurat.Model, "CIE"
 end

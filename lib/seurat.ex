@@ -1,4 +1,12 @@
 defmodule Seurat do
+  @moduledoc """
+
+  ## Conversions
+
+  <div class="mermaid">
+  #{File.read!("priv/mermaid.html")}
+  </div>
+  """
   alias Seurat.Models.{
     Hsl,
     Hsv,

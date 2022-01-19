@@ -9,7 +9,8 @@ defmodule Seurat.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: dialyzer(),
-      elixirc_paths: compiler_paths(Mix.env())
+      elixirc_paths: compiler_paths(Mix.env()),
+      docs: docs()
     ]
   end
 
@@ -41,4 +42,19 @@ defmodule Seurat.MixProject do
   defp compiler_paths(:test), do: ["test/support"] ++ compiler_paths(:prod)
   defp compiler_paths(:dev), do: compiler_paths(:test)
   defp compiler_paths(_), do: ["lib"]
+
+  defp docs do
+    [
+      before_closing_body_tag: fn
+        :html ->
+          """
+          <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"</script>
+          <script>mermaid.initialize({startOnLoad: true})</script>
+          """
+
+        _ ->
+          ""
+      end
+    ]
+  end
 end

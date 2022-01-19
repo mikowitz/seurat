@@ -1,0 +1,6 @@
+Hsl<-->Hsv;
+Hsl<-->Rgb;
+Hsv<-->Hwb;
+Hsv<-->Rgb;
+Rgb-->Hwb;
+Rgb-->Xyz;
