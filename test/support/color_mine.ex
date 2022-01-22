@@ -19,7 +19,9 @@ defmodule Seurat.ColorMine do
       hsv: Seurat.Models.Hsv.new(row.hsv_h, row.hsv_s, row.hsv_v),
       hsl: Seurat.Models.Hsl.new(row.hsl_h, row.hsl_s, row.hsl_l),
       xyz: Seurat.Models.Xyz.new(row.xyz_x, row.xyz_y, row.xyz_z),
-      hwb: Seurat.Models.Hwb.new(row.hwb_h, row.hwb_w, row.hwb_b)
+      hwb: Seurat.Models.Hwb.new(row.hwb_h, row.hwb_w, row.hwb_b),
+      lab: Seurat.Models.Lab.new(row.lab_l_unscaled, row.lab_a_unscaled, row.lab_b_unscaled),
+      yxy: Seurat.Models.Yxy.new(row.yxy_x, row.yxy_y, row.yxy_luma)
     }
   end
 
