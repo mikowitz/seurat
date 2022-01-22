@@ -69,4 +69,62 @@ defmodule Seurat.Models.Xyz do
       r * m1 + g * m2 + b * m3
     end
   end
+
+  defimpl Seurat.Conversions.FromXyz do
+    def convert(xyz), do: xyz
+  end
+
+  defimpl Seurat.Conversions.FromLab do
+    @e 216 / 24389
+    @k 24389 / 27
+    @ref_x 0.95047
+    @ref_y 1.0
+    @ref_z 1.08883
+
+    def convert(%{l: l, a: a, b: b}) do
+      fy = (l + 16) / 116
+      fz = fy - b / 200
+      fx = a / 500 + fy
+
+      xr =
+        if :math.pow(fx, 3) > @e do
+          :math.pow(fx, 3)
+        else
+          (116 * fx - 16) / @k
+        end
+
+      zr =
+        if :math.pow(fz, 3) > @e do
+          :math.pow(fz, 3)
+        else
+          (116 * fz - 16) / @k
+        end
+
+      yr =
+        if l > @k * @e do
+          :math.pow((l + 16) / 116, 3)
+        else
+          l / @k
+        end
+
+      x = xr * @ref_x
+      y = yr * @ref_y
+      z = zr * @ref_z
+
+      Seurat.Models.Xyz.new(x, y, z)
+    end
+  end
+
+  defimpl Seurat.Conversions.FromYxy do
+    def convert(%{x: x, y: y, luma: luma}) do
+      if y == 0 do
+        Seurat.Models.Xyz.new(0, 0, 0)
+      else
+        xyz_x = x * luma / y
+        xyz_z = (1 - x - y) * luma / y
+
+        Seurat.Models.Xyz.new(xyz_x, luma, xyz_z)
+      end
+    end
+  end
 end

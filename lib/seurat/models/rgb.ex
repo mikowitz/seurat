@@ -102,4 +102,23 @@ defmodule Seurat.Models.Rgb do
       Seurat.Models.Rgb.new(r, g, b)
     end
   end
+
+  defimpl Seurat.Conversions.FromXyz do
+    def convert(%{x: x, y: y, z: z}) do
+      r = calculate_channel(x, y, z, 3.2404542, -1.5371385, -0.4985314)
+      g = calculate_channel(x, y, z, -0.9692660, 1.8760108, 0.0415560)
+      b = calculate_channel(x, y, z, 0.0556434, -0.2040259, 1.0572252)
+
+      [r, g, b] = Enum.map([r, g, b], &companding/1)
+
+      Seurat.Models.Rgb.new(r, g, b)
+    end
+
+    defp companding(v) when v <= 0.0031308, do: 12.92 * v
+    defp companding(v), do: :math.pow(1.055 * v, 1 / 2.4) - 0.055
+
+    defp calculate_channel(r, g, b, m1, m2, m3) do
+      r * m1 + g * m2 + b * m3
+    end
+  end
 end

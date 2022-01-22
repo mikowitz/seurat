@@ -42,4 +42,21 @@ defmodule Seurat.Models.Yxy do
 
   use Seurat.Inspect, [:x, :y, :luma]
   use Seurat.Model, "CIE"
+
+  defimpl Seurat.Conversions.FromXyz do
+    def convert(%{x: x, y: y, z: z}) do
+      if x + y + z == 0 do
+        Seurat.Models.Yxy.new(0, 0, 0)
+      else
+        yxy_x = x / (x + y + z)
+        yxy_y = y / (x + y + z)
+
+        Seurat.Models.Yxy.new(yxy_x, yxy_y, y)
+      end
+    end
+  end
+
+  defimpl Seurat.Conversions.FromYxy do
+    def convert(yxy), do: yxy
+  end
 end

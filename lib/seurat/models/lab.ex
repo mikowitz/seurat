@@ -57,4 +57,39 @@ defmodule Seurat.Models.Lab do
 
   use Seurat.Inspect, [:l, :a, :b]
   use Seurat.Model, "CIE"
+
+  defimpl Seurat.Conversions.FromXyz do
+    @e 216 / 24389
+    @k 24389 / 27
+    @ref_x 0.95047
+    @ref_y 1.0
+    @ref_z 1.08883
+
+    def convert(%{x: x, y: y, z: z}) do
+      x = x / @ref_x
+      y = y / @ref_y
+      z = z / @ref_z
+
+      fx = f(x)
+      fy = f(y)
+      fz = f(z)
+      l = 116 * fy - 16
+      a = 500 * (fx - fy)
+      b = 200 * (fy - fz)
+
+      Seurat.Models.Lab.new(l, a, b)
+    end
+
+    defp f(r) do
+      if r > @e do
+        :math.pow(r, 1 / 3)
+      else
+        (@k * r + 16) / 116
+      end
+    end
+  end
+
+  defimpl Seurat.Conversions.FromLab do
+    def convert(lab), do: lab
+  end
 end
