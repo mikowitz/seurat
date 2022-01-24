@@ -26,6 +26,7 @@ defmodule Seurat.MixProject do
     [
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24", only: [:dev, :test], runtime: false},
+      {:jason, "~> 1.2"},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:nimble_csv, "~> 1.1", only: [:dev, :test]}
     ]

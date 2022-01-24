@@ -5,29 +5,14 @@ defmodule Seurat.Models.HslTest do
   doctest Hsl
 
   test "to HSL" do
-    ColorMine.data()
-    |> Enum.map(fn %{color: color, hsl: hsl} ->
-      actual = Seurat.to(hsl, Hsl)
-
-      assert_colors_equal(hsl, actual, color)
-    end)
+    test_conversion(ColorMine, :hsl, :hsl, Hsl)
   end
 
   test "to RGB" do
-    ColorMine.data()
-    |> Enum.map(fn %{color: color, hsl: hsl, rgb: expected} ->
-      actual = Seurat.to(hsl, Seurat.Models.Rgb)
-
-      assert_colors_equal(expected, actual, color)
-    end)
+    test_conversion(ColorMine, :rgb, :hsl, Seurat.Models.Rgb)
   end
 
   test "to HSV" do
-    ColorMine.data()
-    |> Enum.map(fn %{color: color, hsl: hsl, hsv: expected} ->
-      actual = Seurat.to(hsl, Seurat.Models.Hsv)
-
-      assert_colors_equal(expected, actual, color)
-    end)
+    test_conversion(ColorMine, :hsv, :hsl, Seurat.Models.Hsv)
   end
 end

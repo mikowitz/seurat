@@ -6,48 +6,23 @@ defmodule Seurat.Models.RgbTest do
 
   describe "conversions" do
     test "to RGB" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, rgb: rgb} ->
-        actual = Seurat.to(rgb, Rgb)
-
-        assert_colors_equal(rgb, actual, color)
-      end)
+      test_conversion(ColorMine, :rgb, :rgb, Rgb)
     end
 
     test "to HSV" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, hsv: expected} ->
-        actual = Seurat.to(rgb, Seurat.Models.Hsv)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :hsv, :rgb, Seurat.Models.Hsv)
     end
 
     test "to HSL" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, hsl: expected} ->
-        actual = Seurat.to(rgb, Seurat.Models.Hsl)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :hsl, :rgb, Seurat.Models.Hsl)
     end
 
     test "to HWB" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, hwb: expected} ->
-        actual = Seurat.to(rgb, Seurat.Models.Hwb)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :hwb, :rgb, Seurat.Models.Hwb)
     end
 
     test "to XYZ" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, xyz: expected} ->
-        actual = Seurat.to(rgb, Seurat.Models.Xyz)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :xyz, :rgb, Seurat.Models.Xyz)
     end
   end
 end

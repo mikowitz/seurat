@@ -6,6 +6,7 @@ defmodule Seurat.ColorCase do
   using do
     quote do
       alias Seurat.ColorMine
+      alias Seurat.HsluvDataset
       import Seurat.ColorCase
     end
   end
@@ -34,5 +35,18 @@ defmodule Seurat.ColorCase do
 
   def assert_colors_equal(x, y, _, _) do
     raise "Expected matching color types, got #{inspect(x)} and #{inspect(y)}"
+  end
+
+  def test_conversion(dataset, expected_key, source_key, to_model, epsilon \\ 0.05) do
+    dataset.data()
+    |> Enum.map(fn color_data ->
+      Task.async(fn ->
+        expected = Map.get(color_data, expected_key)
+        actual = Seurat.to(Map.get(color_data, source_key), to_model)
+
+        assert_colors_equal(expected, actual, Map.get(color_data, :color), epsilon)
+      end)
+    end)
+    |> Enum.map(&Task.await/1)
   end
 end

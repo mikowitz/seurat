@@ -6,21 +6,11 @@ defmodule Seurat.Models.YxyTest do
 
   describe "conversions" do
     test "to Yxy" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, yxy: yxy} ->
-        actual = Seurat.to(yxy, Yxy)
-
-        assert_colors_equal(yxy, actual, color)
-      end)
+      test_conversion(ColorMine, :yxy, :yxy, Yxy)
     end
 
     test "to XYZ" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, yxy: yxy, xyz: expected} ->
-        actual = Seurat.to(yxy, Seurat.Models.Xyz)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :xyz, :yxy, Seurat.Models.Xyz)
     end
   end
 end
