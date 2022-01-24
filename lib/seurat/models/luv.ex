@@ -45,4 +45,44 @@ defmodule Seurat.Models.Luv do
 
   use Seurat.Inspect, [:l, :u, :v]
   use Seurat.Model, "CIE"
+
+  defimpl Seurat.Conversions.FromXyz do
+    @e 216 / 24389
+    @k 24389 / 27
+    @ref_x 0.95047
+    @ref_y 1.0
+    @ref_z 1.08883
+
+    def convert(%{x: x, y: y, z: z}) do
+      yr = y / @ref_y
+
+      p_denom = x + 15 * y + 3 * z
+
+      if p_denom == 0 do
+        Seurat.Models.Luv.new(0, 0, 0)
+      else
+        up = 4 * x / (x + 15 * y + 3 * z)
+        vp = 9 * y / (x + 15 * y + 3 * z)
+
+        upr = 4 * @ref_x / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+        vpr = 9 * @ref_y / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+
+        l =
+          if yr > @e do
+            116 * :math.pow(yr, 1 / 3) - 16
+          else
+            @k * yr
+          end
+
+        u = 13 * l * (up - upr)
+        v = 13 * l * (vp - vpr)
+
+        Seurat.Models.Luv.new(l, u, v)
+      end
+    end
+  end
+
+  defimpl Seurat.Conversions.FromLuv do
+    def convert(luv), do: luv
+  end
 end

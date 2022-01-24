@@ -127,4 +127,38 @@ defmodule Seurat.Models.Xyz do
       end
     end
   end
+
+  defimpl Seurat.Conversions.FromLuv do
+    @e 216 / 24389
+    @k 24389 / 27
+    @ref_x 0.95047
+    @ref_y 1.0
+    @ref_z 1.08883
+
+    def convert(%{l: l, u: u, v: v}) do
+      if l * u * v == 0 do
+        Seurat.Models.Xyz.new(0, 0, 0)
+      else
+        y =
+          if l > @k * @e do
+            :math.pow((l + 16) / 116, 3)
+          else
+            l / @k
+          end
+
+        u0 = 4 * @ref_x / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+        v0 = 9 * @ref_y / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+
+        a = (52 * l / (u + 13 * l * u0) - 1) / 3
+        b = -5 * y
+        c = -1 / 3
+        d = y * (39 * l / (v + 13 * l * v0) - 5)
+
+        x = (d - b) / (a - c)
+        z = x * a + b
+
+        Seurat.Models.Xyz.new(x, y, z)
+      end
+    end
+  end
 end

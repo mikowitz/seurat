@@ -5,20 +5,10 @@ defmodule Seurat.Models.HwbTest do
   doctest Hwb
 
   test "to HWB" do
-    ColorMine.data()
-    |> Enum.map(fn %{color: color, hwb: hwb} ->
-      actual = Seurat.to(hwb, Hwb)
-
-      assert_colors_equal(hwb, actual, color)
-    end)
+    test_conversion(ColorMine, :hwb, :hwb, Hwb)
   end
 
   test "to HSV" do
-    ColorMine.data()
-    |> Enum.map(fn %{color: color, hwb: hwb, hsv: expected} ->
-      actual = Seurat.to(hwb, Seurat.Models.Hsv)
-
-      assert_colors_equal(expected, actual, color)
-    end)
+    test_conversion(ColorMine, :hsv, :hwb, Seurat.Models.Hsv)
   end
 end

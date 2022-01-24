@@ -6,21 +6,11 @@ defmodule Seurat.Models.LabTest do
 
   describe "conversions" do
     test "to Lab" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, lab: lab} ->
-        actual = Seurat.to(lab, Lab)
-
-        assert_colors_equal(lab, actual, color)
-      end)
+      test_conversion(ColorMine, :lab, :lab, Lab)
     end
 
     test "to XYZ" do
-      ColorMine.data()
-      |> Enum.map(fn %{color: color, lab: lab, xyz: expected} ->
-        actual = Seurat.to(lab, Seurat.Models.Xyz)
-
-        assert_colors_equal(expected, actual, color)
-      end)
+      test_conversion(ColorMine, :xyz, :lab, Seurat.Models.Xyz)
     end
   end
 end
