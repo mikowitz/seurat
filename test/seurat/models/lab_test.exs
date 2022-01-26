@@ -12,5 +12,9 @@ defmodule Seurat.Models.LabTest do
     test "to XYZ" do
       test_conversion(ColorMine, :xyz, :lab, Seurat.Models.Xyz)
     end
+
+    test "to Lch" do
+      test_conversion(ColorMine, :lch, :lab, Seurat.Models.Lch)
+    end
   end
 end

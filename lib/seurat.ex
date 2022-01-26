@@ -9,9 +9,12 @@ defmodule Seurat do
   """
   alias Seurat.Models.{
     Hsl,
+    Hsluv,
     Hsv,
     Hwb,
     Lab,
+    Lch,
+    Lchuv,
     Luv,
     Rgb,
     Xyz,
@@ -20,9 +23,12 @@ defmodule Seurat do
 
   @type color ::
           Hsl.t()
+          | Hsluv.t()
           | Hsv.t()
           | Hwb.t()
           | Lab.t()
+          | Lch.t()
+          | Lchuv.t()
           | Luv.t()
           | Rgb.t()
           | Xyz.t()
