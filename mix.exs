@@ -46,6 +46,37 @@ defmodule Seurat.MixProject do
 
   defp docs do
     [
+      main: Seurat,
+      groups_for_modules: [
+        "Color Models": [
+          Seurat.Models.Hsl,
+          Seurat.Models.Hsv,
+          Seurat.Models.Hwb,
+          Seurat.Models.Lab,
+          Seurat.Models.Lch,
+          Seurat.Models.Luv,
+          Seurat.Models.Lchuv,
+          Seurat.Models.Rgb,
+          Seurat.Models.Yxy,
+          Seurat.Models.Xyz
+        ],
+        Conversions: [
+          Seurat.Conversions.FromHsl,
+          Seurat.Conversions.FromHsv,
+          Seurat.Conversions.FromHwb,
+          Seurat.Conversions.FromLab,
+          Seurat.Conversions.FromLch,
+          Seurat.Conversions.FromLuv,
+          Seurat.Conversions.FromLchuv,
+          Seurat.Conversions.FromRgb,
+          Seurat.Conversions.FromYxy,
+          Seurat.Conversions.FromXyz
+        ],
+        Utilities: [
+          Seurat.Inspect,
+          Seurat.Model
+        ]
+      ],
       before_closing_body_tag: fn
         :html ->
           """

@@ -92,4 +92,20 @@ defmodule Seurat.Models.Lab do
   defimpl Seurat.Conversions.FromLab do
     def convert(lab), do: lab
   end
+
+  defimpl Seurat.Conversions.FromLch do
+    def convert(%{l: l, c: c, h: h}) do
+      a = max(c, 0) * as_rads(h, &:math.cos/1)
+      b = max(c, 0) * as_rads(h, &:math.sin/1)
+
+      Seurat.Models.Lab.new(l, a, b)
+    end
+
+    @rads_per_deg 0.01745329252
+    def degs_to_rads(deg), do: deg * @rads_per_deg
+
+    def as_rads(value, func) do
+      value |> degs_to_rads() |> func.()
+    end
+  end
 end

@@ -1,6 +1,6 @@
 defmodule Seurat.Models.Luv do
   @moduledoc """
-  Models a color in the CIELUV (L*u*v*) colorspace.
+  Models a color in the CIELUV (L\\*u\\*v\\*) colorspace.
 
   Like CIELAB, CIELUV is a device-independent color space that aims to be
   perceptually uniform. In addition, and in contrast to CIELAB, CIELUV aims to
@@ -26,7 +26,7 @@ defmodule Seurat.Models.Luv do
         }
 
   @doc """
-  Creates a new L\*u\*v\* color from the given values
+  Creates a new L\\*u\\*v\\* color from the given values
 
   ## Examples
 
@@ -84,5 +84,21 @@ defmodule Seurat.Models.Luv do
 
   defimpl Seurat.Conversions.FromLuv do
     def convert(luv), do: luv
+  end
+
+  defimpl Seurat.Conversions.FromLchuv do
+    def convert(%{l: l, c: c, h: h}) do
+      u = max(c, 0) * as_rads(h, &:math.cos/1)
+      v = max(c, 0) * as_rads(h, &:math.sin/1)
+
+      Seurat.Models.Luv.new(l, u, v)
+    end
+
+    @rads_per_deg 0.01745329252
+    def degs_to_rads(deg), do: deg * @rads_per_deg
+
+    def as_rads(value, func) do
+      value |> degs_to_rads() |> func.()
+    end
   end
 end

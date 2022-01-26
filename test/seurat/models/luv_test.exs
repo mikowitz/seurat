@@ -12,5 +12,9 @@ defmodule Seurat.Models.LuvTest do
     test "to XYZ" do
       test_conversion(HsluvDataset, :xyz, :luv, Seurat.Models.Xyz)
     end
+
+    test "to Lchuv" do
+      test_conversion(HsluvDataset, :lchuv, :luv, Seurat.Models.Lchuv)
+    end
   end
 end
