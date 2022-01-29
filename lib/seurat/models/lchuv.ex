@@ -9,21 +9,25 @@ defmodule Seurat.Models.Lchuv do
 
   ## Fields
 
-  * `l` - the lightness of the color. 0.0 gives absolute black and 100.0 gives
+  - `l` - the lightness of the color. 0.0 gives absolute black and 100.0 gives
     the brightest white.
-  * `c` - the colorfulness (chroma) of the color. Similar to saturation. 0.0
+  - `c` - the colorfulness (chroma) of the color. Similar to saturation. 0.0
     gives gray colors, and values equal to or greater than 130-180 gives fully
     saturated colors. The range extends beyond 180, but 180 is a suitable upper
     limit that includes the entire L\\*u\\*v\\* gamut.
-  * `h` - the hue of the color in degrees.
+  - `h` - the hue of the color in degrees.
+  - `white_point` - the white point representing the color's illuminant and
+    observer. By default this is D65 for 2° observer
+
   """
 
-  defstruct [:l, :c, :h]
+  defstruct [:l, :c, :h, :white_point]
 
   @type t :: %__MODULE__{
           l: float,
           c: float,
-          h: float
+          h: float,
+          white_point: Seurat.illuminant()
         }
 
   @doc """
@@ -31,15 +35,17 @@ defmodule Seurat.Models.Lchuv do
   ## Examples
 
       iex> Lchuv.new(50, 125, 100)
-      #Seurat.Models.Lchuv<50.0, 125.0, 100.0>
+      #Seurat.Models.Lchuv<50.0, 125.0, 100.0 (D65)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(l, c, h) when is_number(l) and is_number(c) and is_number(h) do
+  @spec new(number, number, number, Seurat.illuminant() | nil) :: __MODULE__.t()
+  def new(l, c, h, white_point \\ :d65)
+      when is_number(l) and is_number(c) and is_number(h) do
     %__MODULE__{
       l: l / 1,
       c: c / 1,
-      h: normalize_hue(h / 1)
+      h: normalize_hue(h / 1),
+      white_point: white_point
     }
   end
 

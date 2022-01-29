@@ -5,8 +5,8 @@ defmodule Seurat.ColorCase do
 
   using do
     quote do
-      alias Seurat.ColorMine
-      alias Seurat.HsluvDataset
+      alias Seurat.{ColorMine, ColorChecker, ColorCheckerBabel, HsluvDataset}
+
       import Seurat.ColorCase
     end
   end
@@ -19,13 +19,14 @@ defmodule Seurat.ColorCase do
         color_name,
         epsilon
       ) do
-    fields = Map.keys(expected) -- [:__struct__]
+    fields = Map.keys(expected) -- [:__struct__, :white_point]
 
     # At low chromas, hue is hard to calculate precisely, so we set them equal
     # to avoid spurious failures. This has been tested and confirmed accurate
     # by the CIE calculator at http://www.brucelindbloom.com
     actual =
       cond do
+        s == Seurat.Models.Rgb && actual.red < 0 -> %{actual | red: 0.0}
         s == Seurat.Models.Lch && expected.c < 20 -> %{actual | h: expected.h}
         s == Seurat.Models.Lchuv && expected.c < 1.0e-8 -> %{actual | h: 0}
         true -> actual
