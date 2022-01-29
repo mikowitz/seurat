@@ -14,15 +14,18 @@ defmodule Seurat.Models.Luv do
     and `v`, but its limits are the interval [-84, 176]
   - `v` - the range of valid `v` values varies depending on the values of `l`
     and `u`, but its limits are the interval [-135, 108]
+  - `white_point` - the white point representing the color's illuminant and
+    observer. By default this is D65 for 2° observer
 
   """
 
-  defstruct [:l, :u, :v]
+  defstruct [:l, :u, :v, :white_point]
 
   @type t :: %__MODULE__{
           l: float,
           u: float,
-          v: float
+          v: float,
+          white_point: Seurat.illuminant()
         }
 
   @doc """
@@ -31,15 +34,17 @@ defmodule Seurat.Models.Luv do
   ## Examples
 
       iex> Luv.new(85, -50, 100)
-      #Seurat.Models.Luv<85.0, -50.0, 100.0>
+      #Seurat.Models.Luv<85.0, -50.0, 100.0 (D65)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(l, u, v) when is_number(l) and is_number(u) and is_number(v) do
+  @spec new(number, number, number, Seurat.illuminant() | nil) :: __MODULE__.t()
+  def new(l, u, v, white_point \\ :d65)
+      when is_number(l) and is_number(u) and is_number(v) do
     %__MODULE__{
       l: l / 1,
       u: u / 1,
-      v: v / 1
+      v: v / 1,
+      white_point: white_point
     }
   end
 
@@ -49,23 +54,24 @@ defmodule Seurat.Models.Luv do
   defimpl Seurat.Conversions.FromXyz do
     @e 216 / 24389
     @k 24389 / 27
-    @ref_x 0.95047
-    @ref_y 1.0
-    @ref_z 1.08883
 
-    def convert(%{x: x, y: y, z: z}) do
-      yr = y / @ref_y
+    def convert(%{x: x, y: y, z: z, white_point: wp}) do
+      %{x: ref_x, y: ref_y, z: ref_z} = Seurat.WhitePoint.for(wp)
+
+      yr = y / ref_y
 
       p_denom = x + 15 * y + 3 * z
 
       if p_denom == 0 do
         Seurat.Models.Luv.new(0, 0, 0)
       else
-        up = 4 * x / (x + 15 * y + 3 * z)
-        vp = 9 * y / (x + 15 * y + 3 * z)
+        up = 4 * x / p_denom
+        vp = 9 * y / p_denom
 
-        upr = 4 * @ref_x / (@ref_x + 15 * @ref_y + 3 * @ref_z)
-        vpr = 9 * @ref_y / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+        r_denom = ref_x + 15 * ref_y + 3 * ref_z
+
+        upr = 4 * ref_x / r_denom
+        vpr = 9 * ref_y / r_denom
 
         l =
           if yr > @e do

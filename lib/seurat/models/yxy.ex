@@ -8,18 +8,22 @@ defmodule Seurat.Models.Yxy do
 
   ## Fields
 
-  `x` - the x chromacity coordinate. Typical range is between 0.0 and 1.0
-  `y` - the y chromacity coordinate. Typical range is between 0.0 and 1.0
-  `luma` - (Y) is the measure of brightness of the color. Its range is 0.0
+  - `x` - the x chromacity coordinate. Typical range is between 0.0 and 1.0
+  - `y` - the y chromacity coordinate. Typical range is between 0.0 and 1.0
+  - `luma` - (Y) is the measure of brightness of the color. Its range is 0.0
     (black) to 1.0 (white)
+  - `white_point` - the white point representing the color's illuminant and
+    observer. By default this is D65 for 2° observer
+
   """
 
-  defstruct [:x, :y, :luma]
+  defstruct [:x, :y, :luma, :white_point]
 
   @type t :: %__MODULE__{
           x: float,
           y: float,
-          luma: float
+          luma: float,
+          white_point: Seurat.illuminant()
         }
 
   @doc """
@@ -28,15 +32,17 @@ defmodule Seurat.Models.Yxy do
   ## Examples
 
       iex> Yxy.new(0.54313, 0.5, 0.9)
-      #Seurat.Models.Yxy<0.5431, 0.5, 0.9>
+      #Seurat.Models.Yxy<0.5431, 0.5, 0.9 (D65)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(x, y, luma) when is_number(x) and is_number(y) and is_number(luma) do
+  @spec new(number, number, number, Seurat.illuminant() | nil) :: __MODULE__.t()
+  def new(x, y, luma, white_point \\ :d65)
+      when is_number(x) and is_number(y) and is_number(luma) do
     %__MODULE__{
       x: x,
       y: y,
-      luma: luma
+      luma: luma,
+      white_point: white_point
     }
   end
 

@@ -16,14 +16,17 @@ defmodule Seurat.Models.Xyz do
   - `z`: is roughly equivalent to the blue stimulation (of CIE RGB). Its range
     depends on the associated white point but for the default D65 it goes from
     0.0 to 1.08883
+  - `white_point` - the white point representing the color's illuminant and
+    observer. By default this is D65 for 2° observer
   """
 
-  defstruct [:x, :y, :z]
+  defstruct [:x, :y, :z, :white_point]
 
   @type t :: %__MODULE__{
           x: float,
           y: float,
-          z: float
+          z: float,
+          white_point: Seurat.illuminant()
         }
 
   @doc """
@@ -32,16 +35,25 @@ defmodule Seurat.Models.Xyz do
   ## Examples
 
       iex> Xyz.new(0.54318, 0.5, 1.01)
-      #Seurat.Models.Xyz<0.5432, 0.5, 1.01>
+      #Seurat.Models.Xyz<0.5432, 0.5, 1.01 (D65)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(x, y, z) when is_number(x) and is_number(y) and is_number(z) do
+  @spec new(number, number, number, Seurat.illuminant() | nil) :: __MODULE__.t()
+  def new(x, y, z, white_point \\ :d65)
+      when is_number(x) and is_number(y) and is_number(z) do
     %__MODULE__{
       x: x,
       y: y,
-      z: z
+      z: z,
+      white_point: white_point
     }
+  end
+
+  def adapt_into(%__MODULE__{white_point: source_wp} = color, target_wp) do
+    matrix = Seurat.Conversions.ChromaticAdaptation.matrix_for(source_wp, target_wp)
+    [x, y, z] = Seurat.Utils.Matrix.mulitply_vector([color.x, color.y, color.z], matrix)
+
+    new(x, y, z, target_wp)
   end
 
   use Seurat.Inspect, [:x, :y, :z]
@@ -77,11 +89,9 @@ defmodule Seurat.Models.Xyz do
   defimpl Seurat.Conversions.FromLab do
     @e 216 / 24389
     @k 24389 / 27
-    @ref_x 0.95047
-    @ref_y 1.0
-    @ref_z 1.08883
 
-    def convert(%{l: l, a: a, b: b}) do
+    def convert(%{l: l, a: a, b: b, white_point: wp}) do
+      %{x: ref_x, y: ref_y, z: ref_z} = Seurat.WhitePoint.for(wp)
       fy = (l + 16) / 116
       fz = fy - b / 200
       fx = a / 500 + fy
@@ -107,9 +117,9 @@ defmodule Seurat.Models.Xyz do
           l / @k
         end
 
-      x = xr * @ref_x
-      y = yr * @ref_y
-      z = zr * @ref_z
+      x = xr * ref_x
+      y = yr * ref_y
+      z = zr * ref_z
 
       Seurat.Models.Xyz.new(x, y, z)
     end
@@ -131,11 +141,10 @@ defmodule Seurat.Models.Xyz do
   defimpl Seurat.Conversions.FromLuv do
     @e 216 / 24389
     @k 24389 / 27
-    @ref_x 0.95047
-    @ref_y 1.0
-    @ref_z 1.08883
 
-    def convert(%{l: l, u: u, v: v}) do
+    def convert(%{l: l, u: u, v: v, white_point: wp}) do
+      %{x: ref_x, y: ref_y, z: ref_z} = Seurat.WhitePoint.for(wp)
+
       if l * u * v == 0 do
         Seurat.Models.Xyz.new(0, 0, 0)
       else
@@ -146,8 +155,8 @@ defmodule Seurat.Models.Xyz do
             l / @k
           end
 
-        u0 = 4 * @ref_x / (@ref_x + 15 * @ref_y + 3 * @ref_z)
-        v0 = 9 * @ref_y / (@ref_x + 15 * @ref_y + 3 * @ref_z)
+        u0 = 4 * ref_x / (ref_x + 15 * ref_y + 3 * ref_z)
+        v0 = 9 * ref_y / (ref_x + 15 * ref_y + 3 * ref_z)
 
         a = (52 * l / (u + 13 * l * u0) - 1) / 3
         b = -5 * y

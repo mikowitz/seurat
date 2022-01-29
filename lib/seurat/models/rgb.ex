@@ -104,12 +104,18 @@ defmodule Seurat.Models.Rgb do
   end
 
   defimpl Seurat.Conversions.FromXyz do
-    def convert(%{x: x, y: y, z: z}) do
-      r = calculate_channel(x, y, z, 3.2404542, -1.5371385, -0.4985314)
-      g = calculate_channel(x, y, z, -0.9692660, 1.8760108, 0.0415560)
-      b = calculate_channel(x, y, z, 0.0556434, -0.2040259, 1.0572252)
+    def convert(%{x: x, y: y, z: z, white_point: wp}) do
+      [
+        [a, b, c],
+        [d, e, f],
+        [g, h, i]
+      ] = Seurat.Conversions.RgbXyzMatrix.xyz_to_rgb(wp, :srgb)
 
-      [r, g, b] = Enum.map([r, g, b], &companding/1)
+      red = calculate_channel(x, y, z, a, b, c)
+      green = calculate_channel(x, y, z, d, e, f)
+      blue = calculate_channel(x, y, z, g, h, i)
+
+      [r, g, b] = Enum.map([red, green, blue], &companding/1)
 
       Seurat.Models.Rgb.new(r, g, b)
     end

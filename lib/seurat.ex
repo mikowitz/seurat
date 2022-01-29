@@ -34,6 +34,23 @@ defmodule Seurat do
           | Xyz.t()
           | Yxy.t()
 
+  @type illuminant ::
+          :a
+          | :b
+          | :c
+          | :d50
+          | :d55
+          | :d65
+          | :d75
+          | :e
+          | :f2
+          | :f7
+          | :f11
+          | :d50_10degree
+          | :d55_10degree
+          | :d65_10degree
+          | :d75_10degree
+
   @spec to(color(), atom) :: color
   def to(color, target_colorspace) do
     Module.concat(

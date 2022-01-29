@@ -21,6 +21,8 @@ defmodule Seurat.Models.Lab do
     positive values towards red.
   - `b` - the blue/yellow opponent colors. Negative values toward blue and
     positive values toward yellow.
+  - `white_point` - the white point representing the color's illuminant and
+    observer. By default this is D65 for 2° observer
 
   The `a` and `b` values are unbounded, and can extend beyond ±150 to cover the
   entire human color gamut. However, not every L\*a\*b\* color is necessarily
@@ -29,12 +31,13 @@ defmodule Seurat.Models.Lab do
   colors.
   """
 
-  defstruct [:l, :a, :b]
+  defstruct [:l, :a, :b, :white_point]
 
   @type t :: %__MODULE__{
           l: float,
           a: float,
-          b: float
+          b: float,
+          white_point: Seurat.illuminant()
         }
 
   @doc """
@@ -43,15 +46,17 @@ defmodule Seurat.Models.Lab do
   ## Examples
 
       iex> Lab.new(75, -10, 50)
-      #Seurat.Models.Lab<75.0, -10.0, 50.0>
+      #Seurat.Models.Lab<75.0, -10.0, 50.0 (D65)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(l, a, b) when is_number(l) and is_number(a) and is_number(b) do
+  @spec new(number, number, number, Seurat.illuminant() | nil) :: __MODULE__.t()
+  def new(l, a, b, white_point \\ :d65)
+      when is_number(l) and is_number(a) and is_number(b) do
     %__MODULE__{
       l: l / 1,
       a: a / 1,
-      b: b / 1
+      b: b / 1,
+      white_point: white_point
     }
   end
 
@@ -61,14 +66,13 @@ defmodule Seurat.Models.Lab do
   defimpl Seurat.Conversions.FromXyz do
     @e 216 / 24389
     @k 24389 / 27
-    @ref_x 0.95047
-    @ref_y 1.0
-    @ref_z 1.08883
 
-    def convert(%{x: x, y: y, z: z}) do
-      x = x / @ref_x
-      y = y / @ref_y
-      z = z / @ref_z
+    def convert(%{x: x, y: y, z: z, white_point: wp}) do
+      %{x: ref_x, y: ref_y, z: ref_z} = Seurat.WhitePoint.for(wp)
+
+      x = x / ref_x
+      y = y / ref_y
+      z = z / ref_z
 
       fx = f(x)
       fy = f(y)
