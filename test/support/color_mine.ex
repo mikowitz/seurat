@@ -1,18 +1,5 @@
 defmodule Seurat.ColorMine do
-  @moduledoc false
-
-  @raw_data "test/support/data_color_mine.csv"
-            |> File.read!()
-            |> NimbleCSV.RFC4180.parse_string(skip_headers: false)
-
-  def data do
-    colors()
-    |> Enum.map(fn row ->
-      Enum.zip(headers(), Enum.map(row, &parse_float/1))
-      |> Enum.into(%{})
-      |> into_structs()
-    end)
-  end
+  use Seurat.ColorDataCsvParser, "color_mine"
 
   defp into_structs(row) do
     %{
@@ -26,15 +13,5 @@ defmodule Seurat.ColorMine do
       yxy: Seurat.Models.Yxy.new(row.yxy_x, row.yxy_y, row.yxy_luma),
       lch: Seurat.Models.Lch.new(row.lch_l_unscaled, row.lch_c_unscaled, row.lch_h_normalized)
     }
-  end
-
-  defp headers, do: List.first(@raw_data) |> Enum.map(&String.to_atom/1)
-  defp colors, do: Enum.drop(@raw_data, 1)
-
-  defp parse_float(s) do
-    case Float.parse(s) do
-      {f, _} -> f
-      :error -> s
-    end
   end
 end
