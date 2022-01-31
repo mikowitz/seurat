@@ -12,7 +12,7 @@ defmodule Seurat.Models.Yxy do
   - `y` - the y chromacity coordinate. Typical range is between 0.0 and 1.0
   - `luma` - (Y) is the measure of brightness of the color. Its range is 0.0
     (black) to 1.0 (white)
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
 
   """

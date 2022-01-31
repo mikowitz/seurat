@@ -14,7 +14,7 @@ defmodule Seurat.Models.Luv do
     and `v`, but its limits are the interval [-84, 176]
   - `v` - the range of valid `v` values varies depending on the values of `l`
     and `u`, but its limits are the interval [-135, 108]
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
 
   """
