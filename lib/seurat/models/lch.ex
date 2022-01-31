@@ -9,13 +9,15 @@ defmodule Seurat.Models.Lch do
 
   ## Fields
 
-  * `l` - the lightness of the color. 0.0 gives absolute black and 100.0 gives
+  - `l` - the lightness of the color. 0.0 gives absolute black and 100.0 gives
     the brightest white.
-  * `c` - the colorfulness (chroma) of the color. Similar to saturation. 0.0 gives
+  - `c` - the colorfulness (chroma) of the color. Similar to saturation. 0.0 gives
     gray colors, and values equal to or greater than 128 gives fully saturated
     colors. The range extends beyond 128, but 128 is a suitable upper limit for
     downsampling to sRGB or L\\*a\\*b\\*.
-  * `h` - the hue of the color in degrees.
+  - `h` - the hue of the color in degrees.
+  - `white_point` - the white point associated with the color's illuminant and
+    observer. By default this is D65 for 2° observer
 
   """
 

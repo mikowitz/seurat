@@ -16,7 +16,7 @@ defmodule Seurat.Models.Xyz do
   - `z`: is roughly equivalent to the blue stimulation (of CIE RGB). Its range
     depends on the associated white point but for the default D65 it goes from
     0.0 to 1.08883
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
   """
 

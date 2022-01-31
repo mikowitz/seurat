@@ -21,7 +21,7 @@ defmodule Seurat.Models.Lab do
     positive values towards red.
   - `b` - the blue/yellow opponent colors. Negative values toward blue and
     positive values toward yellow.
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
 
   The `a` and `b` values are unbounded, and can extend beyond ±150 to cover the

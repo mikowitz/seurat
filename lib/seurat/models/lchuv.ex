@@ -16,7 +16,7 @@ defmodule Seurat.Models.Lchuv do
     saturated colors. The range extends beyond 180, but 180 is a suitable upper
     limit that includes the entire L\\*u\\*v\\* gamut.
   - `h` - the hue of the color in degrees.
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
 
   """

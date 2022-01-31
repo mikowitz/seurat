@@ -17,7 +17,7 @@ defmodule Seurat.Models.Hsluv do
     colors.
   - `l` - determines how light the color will look. 0.0 gives black, 50.0 gives
     a clear color, and 100.0 gives white.
-  - `white_point` - the white point representing the color's illuminant and
+  - `white_point` - the white point associated with the color's illuminant and
     observer. By default this is D65 for 2° observer
 
   """

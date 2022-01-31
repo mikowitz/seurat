@@ -5,7 +5,7 @@ defmodule Seurat.WhitePoint do
   A standard illuminant represents a theoretical source of light that can be
   used for reliably comparing colors recorded under different lighting
   conditions. Each illuminant defines a white point which represents, often
-  standardized in XYZ format, the tristimulus values for a target white under
+  standardized in XYZ format, the tristimulus values for a target "white" under
   that illuminant.
 
   The following illuminants have been published by the International Commission
@@ -13,24 +13,31 @@ defmodule Seurat.WhitePoint do
   internationale de l'éclairage)
 
   * A - represents domestic, tungsten-filament lighting with a color temperature
-    of around 2856K.
-  * B - represents noon sunlight, with a correlated color temperature of 4874K.
-    (deprecated in favor of the D series of illuminants)
+    of around 2856K
+  * B - represents noon sunlight, with a correlated color temperature of 4874K
   * C - represents average daylight, with a correlated color temperature of
-    6774K. (deprecated in favor of the D series of illuminants)
+    6774K
   * D50 - represents natural dalyight with a color temperature of around 5000K
   * D55 - represents natural dalyight with a color temperature of around 5500K
-  * D65 - often used as the default when no white
-    point or illuminant is specified, this illuminant is a daylight illuminant
-    that corresponds roughly to average midday light in Western/Northen Europe.
+  * D65 - represents natural daylight with a color temperature of around 6500K
+    D65 is often used as the default when no white point or illuminant is
+    specified.
   * D75 - represents natural dalyight with a color temperature of around 7500K
   * E - represents the equal energy radiator
   * F2 - represents a semi-broadband fluorescent lamp
   * F7 - represents a broadband fluorescent lamp
   * F11 - represents a narrowband fluorescent lamp
 
+  While all illuminants are defined using the 2° Standard Observer, the D series
+  illuminantes also have definitions using the 10° Standard Observer. See
+  `t:Seurat.illuminant/0` for representing these different observers when using
+  `Seurat`.
+
   """
 
+  @doc """
+  Returns the tristimulus values for the target white of the given illuminant.
+  """
   @spec for(Seurat.illuminant()) :: %{x: float, y: float, z: float}
   def for(:a), do: %{x: 1.0985, y: 1.0, z: 0.35585}
   def for(:b), do: %{x: 0.99072, y: 1.0, z: 0.85223}
