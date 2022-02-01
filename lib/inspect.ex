@@ -11,6 +11,7 @@ defmodule Seurat.Inspect do
             "<",
             inspect_fields(color, unquote(fields)),
             inspect_white_point(color),
+            inspect_profile(color),
             ">"
           ])
         end
@@ -24,6 +25,21 @@ defmodule Seurat.Inspect do
         end
 
         defp inspect_white_point(_), do: ""
+
+        defp inspect_profile(%{profile: profile}) do
+          concat([
+            " (",
+            format_profile(profile),
+            ")"
+          ])
+        end
+
+        defp inspect_profile(_), do: ""
+
+        defp format_profile(:adobe), do: "Adobe RGB"
+        defp format_profile(:pro_photo), do: "Pro Photo RGB"
+        defp format_profile(:srgb), do: "sRGB"
+        defp format_profile(:wide_gamut), do: "Wide Gamut RGB"
 
         defp inspect_fields(color, fields) do
           Enum.map(fields, fn field ->

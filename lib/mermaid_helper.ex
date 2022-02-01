@@ -43,7 +43,8 @@ defmodule Seurat.MermaidHelper do
   def get_colorspaces do
     modules()
     |> Enum.filter(fn m ->
-      m |> Module.split() |> Enum.take(2) == ~w(Seurat Models)
+      m = Module.split(m)
+      length(m) == 6 and Enum.take(m, 2) == ~w(Seurat Models)
     end)
     |> Enum.map(fn m ->
       {

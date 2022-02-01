@@ -19,7 +19,7 @@ defmodule Seurat.ColorCase do
         color_name,
         epsilon
       ) do
-    fields = Map.keys(expected) -- [:__struct__, :white_point]
+    fields = Map.keys(expected) -- [:__struct__, :white_point, :profile]
 
     # At low chromas, hue is hard to calculate precisely, so we set them equal
     # to avoid spurious failures. This has been tested and confirmed accurate

@@ -19,12 +19,13 @@ defmodule Seurat.Models.Rgb do
 
   """
 
-  defstruct [:red, :green, :blue]
+  defstruct [:red, :green, :blue, :profile]
 
   @type t :: %__MODULE__{
           red: float,
           green: float,
-          blue: float
+          blue: float,
+          profile: Seurat.rgb_profile()
         }
 
   @doc """
@@ -32,16 +33,25 @@ defmodule Seurat.Models.Rgb do
 
   ## Examples
 
+  When no RGB profile is given, `Seurat` assumes sRGB
+
       iex> Rgb.new(0.5, 0.5, 1)
-      #Seurat.Models.Rgb<0.5, 0.5, 1.0>
+      #Seurat.Models.Rgb<0.5, 0.5, 1.0 (sRGB)>
+
+  If a profile is specificed, creates the color using that profile
+
+      iex> Rgb.new(0.5, 0, 1, :adobe)
+      #Seurat.Models.Rgb<0.5, 0.0, 1.0 (Adobe RGB)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(red, green, blue) when is_number(red) and is_number(green) and is_number(blue) do
+  @spec new(number, number, number, Seurat.rgb_profile()) :: __MODULE__.t()
+  def new(red, green, blue, profile \\ :srgb)
+      when is_number(red) and is_number(green) and is_number(blue) do
     %__MODULE__{
       red: red / 1,
       green: green / 1,
-      blue: blue / 1
+      blue: blue / 1,
+      profile: profile
     }
   end
 
