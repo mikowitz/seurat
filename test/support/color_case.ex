@@ -11,7 +11,7 @@ defmodule Seurat.ColorCase do
     end
   end
 
-  def assert_colors_equal(expected, actual, color_name, epsilon \\ 0.05)
+  def assert_colors_equal(expected, actual, color_name \\ "Test color", epsilon \\ 0.05)
 
   def assert_colors_equal(
         %{__struct__: s} = expected,

@@ -60,21 +60,23 @@ defmodule Seurat.Models.Xyz do
   use Seurat.Model, "CIE"
 
   defimpl Seurat.Conversions.FromRgb do
-    def convert(%{red: r, green: g, blue: b}) do
-      with [r, g, b] <- Enum.map([r, g, b], &inverse_companding/1) do
-        x = calculate_channel(r, g, b, 0.4124564, 0.3575761, 0.1804375)
-        y = calculate_channel(r, g, b, 0.2126729, 0.7151522, 0.0721750)
-        z = calculate_channel(r, g, b, 0.0193339, 0.1191920, 0.9503041)
+    alias Seurat.Models.Rgb.Profile
 
-        Seurat.Models.Xyz.new(x, y, z)
+    def convert(%{red: r, green: g, blue: b, profile: profile}) do
+      with inverse_companding_fn = Profile.inverse_companding_function_for(profile),
+           [red, green, blue] <- Enum.map([r, g, b], &inverse_companding_fn.(&1)) do
+        [
+          [a, b, c],
+          [d, e, f],
+          [g, h, i]
+        ] = Seurat.Conversions.RgbXyzMatrix.matrix(profile, Profile.white_point_for(profile))
+
+        x = calculate_channel(red, green, blue, a, b, c)
+        y = calculate_channel(red, green, blue, d, e, f)
+        z = calculate_channel(red, green, blue, g, h, i)
+
+        Seurat.Models.Xyz.new(x, y, z, Profile.white_point_for(profile))
       end
-    end
-
-    # For now we're only using sRGB, so that's the companding we use
-    defp inverse_companding(v) when v <= 0.04045, do: v / 12.92
-
-    defp inverse_companding(v) do
-      :math.pow((v + 0.055) / 1.055, 2.4)
     end
 
     defp calculate_channel(r, g, b, m1, m2, m3) do
