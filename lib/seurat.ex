@@ -53,6 +53,7 @@ defmodule Seurat do
 
   @type rgb_profile ::
           :adobe
+          | :linear_srgb
           | :pro_photo
           | :srgb
           | :wide_gamut
