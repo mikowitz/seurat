@@ -14,6 +14,16 @@ defmodule Seurat.ColorCase do
   def assert_colors_equal(expected, actual, color_name \\ "Test color", epsilon \\ 0.05)
 
   def assert_colors_equal(
+        %{__struct__: s, white_point: wp1},
+        %{__struct__: s, white_point: wp2},
+        _,
+        _
+      )
+      when wp1 != wp2 do
+    raise "Expected matching white points for #{inspect(s)} colors, got #{wp1} and #{wp2}"
+  end
+
+  def assert_colors_equal(
         %{__struct__: s} = expected,
         %{__struct__: s} = actual,
         color_name,

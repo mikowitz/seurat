@@ -53,15 +53,11 @@ defmodule Seurat.Models.Rgb.Profile do
     end
   end
 
-  def inverse_companding_function_for(:adobe) do
-    gamma_inverse_companding(2.2)
-  end
-
   def inverse_companding_function_for(:pro_photo) do
     gamma_inverse_companding(1.8)
   end
 
-  def inverse_companding_function_for(:wide_gamut) do
+  def inverse_companding_function_for(_profile) do
     gamma_inverse_companding(2.2)
   end
 

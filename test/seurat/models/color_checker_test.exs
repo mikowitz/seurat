@@ -8,8 +8,8 @@ defmodule Seurat.ColorCheckerTest do
 
     test "RGB to XYZ" do
       ColorChecker.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, xyz: expected} ->
-        xyz_d65 = Seurat.to(rgb, Seurat.Models.Xyz)
+      |> Enum.map(fn %{color: color, srgb: srgb, xyz: expected} ->
+        xyz_d65 = Seurat.to(srgb, Seurat.Models.Xyz)
         xyz_d50 = Seurat.Models.Xyz.adapt_into(xyz_d65, :d50)
 
         assert_colors_equal(expected, xyz_d50, color)
@@ -21,7 +21,7 @@ defmodule Seurat.ColorCheckerTest do
     end
 
     test "XYZ to RGB" do
-      test_conversion(ColorChecker, :rgb, :xyz, Seurat.Models.Rgb)
+      test_conversion(ColorChecker, :srgb, :xyz, Seurat.Models.Rgb)
     end
 
     test "XYZ to Yxy" do

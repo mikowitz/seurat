@@ -81,7 +81,7 @@ defmodule Seurat.Models.Lab do
       a = 500 * (fx - fy)
       b = 200 * (fy - fz)
 
-      Seurat.Models.Lab.new(l, a, b)
+      Seurat.Models.Lab.new(l, a, b, wp)
     end
 
     defp f(r) do

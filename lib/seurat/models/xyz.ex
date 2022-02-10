@@ -123,19 +123,19 @@ defmodule Seurat.Models.Xyz do
       y = yr * ref_y
       z = zr * ref_z
 
-      Seurat.Models.Xyz.new(x, y, z)
+      Seurat.Models.Xyz.new(x, y, z, wp)
     end
   end
 
   defimpl Seurat.Conversions.FromYxy do
-    def convert(%{x: x, y: y, luma: luma}) do
+    def convert(%{x: x, y: y, luma: luma, white_point: wp}) do
       if y == 0 do
         Seurat.Models.Xyz.new(0, 0, 0)
       else
         xyz_x = x * luma / y
         xyz_z = (1 - x - y) * luma / y
 
-        Seurat.Models.Xyz.new(xyz_x, luma, xyz_z)
+        Seurat.Models.Xyz.new(xyz_x, luma, xyz_z, wp)
       end
     end
   end
