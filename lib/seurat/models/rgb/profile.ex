@@ -21,6 +21,15 @@ defmodule Seurat.Models.Rgb.Profile do
     }
   end
 
+  def for(:apple) do
+    %{
+      red: %{x: 0.625, y: 0.34, luma: 0.244634},
+      green: %{x: 0.28, y: 0.595, luma: 0.672034},
+      blue: %{x: 0.155, y: 0.07, luma: 0.083332},
+      white_point: :d65
+    }
+  end
+
   def for(:pro_photo) do
     %{
       red: %{x: 0.73747, y: 0.2653, luma: 0.288040},
@@ -54,6 +63,10 @@ defmodule Seurat.Models.Rgb.Profile do
   end
 
   def inverse_companding_function_for(:pro_photo) do
+    gamma_inverse_companding(1.8)
+  end
+
+  def inverse_companding_function_for(:apple) do
     gamma_inverse_companding(1.8)
   end
 

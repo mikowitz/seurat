@@ -38,6 +38,8 @@ defmodule Seurat.Models.Rgb do
   - Adobe RGB (1998) - a colorspace developed by Adobe in 1998, designed to
     encompass most of the colors achievable by CMYK color printers, but using
     RGB primary colors on computer displays
+  - Apple RGB - a colorspace developed by Adobe, not Apple. It is based on the
+    classic Apple 13" RGB monitors.
   - ProPhoto RGB - also known as ROMM RGB, it was developed by Kodak to have a
     large gamut with photographic output in mind. Because of its gamut (wider
     even than Wide Gamut RGB), primaries and white point, approximately 13% of
@@ -134,6 +136,42 @@ defmodule Seurat.Models.Rgb do
     r >= 0 and r <= 1 and
       g >= 0 and g <= 1 and
       b >= 0 and b <= 1
+  end
+
+  alias Seurat.Models.Rgb.Profile
+  alias Seurat.Conversions.{RgbXyzMatrix, ChromaticAdaptation}
+  alias Seurat.Utils.Matrix
+
+  @doc """
+  Converts an RGB color using one profile into another RGB profile
+
+  ## Examples
+
+      iex> adobe = Rgb.new(0.5, 0, 1, :adobe)
+      iex> Rgb.into(adobe, :srgb)
+      #Seurat.Models.Rgb<0.6991, 0.0, 1.0429 (sRGB)>
+
+  """
+  @spec into(__MODULE__.t(), Seurat.rgb_profile()) :: __MODULE__.t()
+  def into(%__MODULE__{} = color, target_colorspace) do
+    source_wp = Profile.white_point_for(color.profile)
+    target_wp = Profile.white_point_for(target_colorspace)
+
+    ca_m = ChromaticAdaptation.matrix_for(source_wp, target_wp)
+    out_m = RgbXyzMatrix.xyz_to_rgb(target_wp, target_colorspace)
+
+    m =
+      Matrix.multiply(
+        out_m,
+        Matrix.multiply(
+          ca_m,
+          RgbXyzMatrix.matrix(color.profile, source_wp)
+        )
+      )
+
+    [r, g, b] = Matrix.mulitply_vector([color.red, color.green, color.blue], m)
+
+    __MODULE__.new(r, g, b, target_colorspace)
   end
 
   use Seurat.Inspect, [:red, :green, :blue]

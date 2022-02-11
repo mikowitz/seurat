@@ -37,6 +37,7 @@ defmodule Seurat.Inspect do
         defp inspect_profile(_), do: ""
 
         defp format_profile(:adobe), do: "Adobe RGB"
+        defp format_profile(:apple), do: "Apple RGB"
         defp format_profile(:pro_photo), do: "Pro Photo RGB"
         defp format_profile(:srgb), do: "sRGB"
         defp format_profile(:wide_gamut), do: "Wide Gamut RGB"

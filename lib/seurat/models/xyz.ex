@@ -65,22 +65,12 @@ defmodule Seurat.Models.Xyz do
     def convert(%{red: r, green: g, blue: b, profile: profile}) do
       with inverse_companding_fn = Profile.inverse_companding_function_for(profile),
            [red, green, blue] <- Enum.map([r, g, b], &inverse_companding_fn.(&1)) do
-        [
-          [a, b, c],
-          [d, e, f],
-          [g, h, i]
-        ] = Seurat.Conversions.RgbXyzMatrix.matrix(profile, Profile.white_point_for(profile))
+        m = Seurat.Conversions.RgbXyzMatrix.matrix(profile, Profile.white_point_for(profile))
 
-        x = calculate_channel(red, green, blue, a, b, c)
-        y = calculate_channel(red, green, blue, d, e, f)
-        z = calculate_channel(red, green, blue, g, h, i)
+        [x, y, z] = Seurat.Utils.Matrix.mulitply_vector([red, green, blue], m)
 
         Seurat.Models.Xyz.new(x, y, z, Profile.white_point_for(profile))
       end
-    end
-
-    defp calculate_channel(r, g, b, m1, m2, m3) do
-      r * m1 + g * m2 + b * m3
     end
   end
 

@@ -26,6 +26,60 @@ defmodule Seurat.Models.RgbTest do
     end
   end
 
+  describe "adapting to different RGB profiles" do
+    test "from sRGB" do
+      srgb = Rgb.new(0.5, 0, 1)
+
+      pro_photo = Rgb.new(0.4053, 0.0773, 0.8741, :pro_photo)
+      adobe = Rgb.new(0.3576, 0, 0.9588, :adobe)
+      apple = Rgb.new(0.4563, -0.0285, 1.0325, :apple)
+      wide_gamut = Rgb.new(0.2993, 0.1091, 0.9245, :wide_gamut)
+
+      assert_colors_equal(pro_photo, Rgb.into(srgb, :pro_photo))
+      assert_colors_equal(adobe, Rgb.into(srgb, :adobe))
+      assert_colors_equal(apple, Rgb.into(srgb, :apple))
+      assert_colors_equal(wide_gamut, Rgb.into(srgb, :wide_gamut))
+    end
+
+    test "from Pro Photo" do
+      pro_photo = Rgb.new(0.5, 0, 1, :pro_photo)
+
+      srgb = Rgb.new(0.7102, -0.1172, 1.1573)
+      wide_gamut = Rgb.new(0.3769, 0.0399, 1.0633, :wide_gamut)
+      apple = Rgb.new(0.6419, -0.1581, 1.1986, :apple)
+      adobe = Rgb.new(0.4746, -0.1173, 1.1048, :adobe)
+
+      assert_colors_equal(srgb, Rgb.into(pro_photo, :srgb))
+      assert_colors_equal(wide_gamut, Rgb.into(pro_photo, :wide_gamut))
+      assert_colors_equal(apple, Rgb.into(pro_photo, :apple))
+      assert_colors_equal(adobe, Rgb.into(pro_photo, :adobe))
+    end
+
+    test "from Adobe" do
+      adobe = Rgb.new(0.5, 0, 1, :adobe)
+
+      srgb = Rgb.new(0.6991, 0, 1.0429)
+
+      assert_colors_equal(srgb, Rgb.into(adobe, :srgb))
+    end
+
+    test "from Apple" do
+      apple = Rgb.new(0.5, 0, 1, :apple)
+
+      wide_gamut = Rgb.new(0.3366, 0.135, 0.8988, :wide_gamut)
+
+      assert_colors_equal(wide_gamut, Rgb.into(apple, :wide_gamut))
+    end
+
+    test "from Wide Gamut" do
+      wide_gamut = Rgb.new(0.5, 0, 1, :wide_gamut)
+
+      adobe = Rgb.new(0.6378, -0.1887, 1.0379, :adobe)
+
+      assert_colors_equal(adobe, Rgb.into(wide_gamut, :adobe))
+    end
+  end
+
   describe "converting from different profiles to XYZ" do
     test "sRGB" do
       rgb = Rgb.new(0.5, 0, 1, :srgb)
