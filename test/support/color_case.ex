@@ -11,7 +11,17 @@ defmodule Seurat.ColorCase do
     end
   end
 
-  def assert_colors_equal(expected, actual, color_name, epsilon \\ 0.05)
+  def assert_colors_equal(expected, actual, color_name \\ "Test color", epsilon \\ 0.05)
+
+  def assert_colors_equal(
+        %{__struct__: s, white_point: wp1},
+        %{__struct__: s, white_point: wp2},
+        _,
+        _
+      )
+      when wp1 != wp2 do
+    raise "Expected matching white points for #{inspect(s)} colors, got #{wp1} and #{wp2}"
+  end
 
   def assert_colors_equal(
         %{__struct__: s} = expected,
@@ -19,7 +29,7 @@ defmodule Seurat.ColorCase do
         color_name,
         epsilon
       ) do
-    fields = Map.keys(expected) -- [:__struct__, :white_point]
+    fields = Map.keys(expected) -- [:__struct__, :white_point, :profile]
 
     # At low chromas, hue is hard to calculate precisely, so we set them equal
     # to avoid spurious failures. This has been tested and confirmed accurate

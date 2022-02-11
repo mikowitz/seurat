@@ -8,9 +8,38 @@ defmodule Seurat.ColorCheckerTest do
 
     test "RGB to XYZ" do
       ColorChecker.data()
-      |> Enum.map(fn %{color: color, rgb: rgb, xyz: expected} ->
+      |> Enum.map(fn %{color: color, srgb: srgb, xyz: expected} ->
+        xyz_d65 = Seurat.to(srgb, Seurat.Models.Xyz)
+        xyz_d50 = Seurat.Models.Xyz.adapt_into(xyz_d65, :d50)
+
+        assert_colors_equal(expected, xyz_d50, color)
+      end)
+    end
+
+    test "Adobe RGB to XYZ" do
+      ColorChecker.data()
+      |> Enum.map(fn %{color: color, adobe_rgb: adobe_rgb, xyz: expected} ->
+        xyz_d65 = Seurat.to(adobe_rgb, Seurat.Models.Xyz)
+        xyz_d50 = Seurat.Models.Xyz.adapt_into(xyz_d65, :d50)
+
+        assert_colors_equal(expected, xyz_d50, color)
+      end)
+    end
+
+    test "Apple RGB to XYZ" do
+      ColorChecker.data()
+      |> Enum.map(fn %{color: color, apple_rgb: rgb, xyz: expected} ->
         xyz_d65 = Seurat.to(rgb, Seurat.Models.Xyz)
         xyz_d50 = Seurat.Models.Xyz.adapt_into(xyz_d65, :d50)
+
+        assert_colors_equal(expected, xyz_d50, color)
+      end)
+    end
+
+    test "Pro Photo RGB to XYZ" do
+      ColorChecker.data()
+      |> Enum.map(fn %{color: color, pro_photo_rgb: rgb, xyz: expected} ->
+        xyz_d50 = Seurat.to(rgb, Seurat.Models.Xyz)
 
         assert_colors_equal(expected, xyz_d50, color)
       end)
@@ -21,7 +50,7 @@ defmodule Seurat.ColorCheckerTest do
     end
 
     test "XYZ to RGB" do
-      test_conversion(ColorChecker, :rgb, :xyz, Seurat.Models.Rgb)
+      test_conversion(ColorChecker, :srgb, :xyz, Seurat.Models.Rgb)
     end
 
     test "XYZ to Yxy" do

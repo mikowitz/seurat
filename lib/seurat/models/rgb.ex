@@ -1,6 +1,64 @@
 defmodule Seurat.Models.Rgb do
   @moduledoc """
-  A color modeled in sRGB colorspace
+  A color modeled in an RGB colorspace
+
+  ## Linear vs non-linear RGB
+
+  In digital images, colors are often stored in a gamma corrected -- converted
+  using a non-linear transfer function into a format like sRGB (Standard RGB) --
+  format. This is done both for compression, and to account for the fact that
+  the output from the electron gun in older CRT monitors was non-linear. It also
+  accounts for the fact that human eyes are more sensitive to color variation
+  at low intensities (near black) than at high intensities (near white).
+
+  This non-linearity means that operations (addition, multiplication,
+  interpolaction, etc.) on colors that have have been gamma corrected will not
+  return expected results. In order to modify RGB colors, the gamma correction
+  must be reversed.
+
+  For example, if you want to modify colors in an image you would follow these
+  steps
+
+  1. decode color pixel data from the image
+  2. reverse the gamma correction, converting to linear sRGB
+  3. perform your modification operations
+  4. reapply the gamma correction
+  5. encode color data back into an image format to be stored
+
+  ## RGB profiles
+
+  An RGB colorspace profile is defined by two pieces of data:
+
+  1. Its primaries (canonical values for "red", "green" and "blue", defined as
+    [`Yxy`](`Seurat.Models.Yxy`) colors)
+  2. Its reference white, or [white point](`Seurat.WhitePoint`)
+
+  Seurat provides definitions for the following common RGB profiles
+
+  - Adobe RGB (1998) - a colorspace developed by Adobe in 1998, designed to
+    encompass most of the colors achievable by CMYK color printers, but using
+    RGB primary colors on computer displays
+  - Apple RGB - a colorspace developed by Adobe, not Apple. It is based on the
+    classic Apple 13" RGB monitors.
+  - ProPhoto RGB - also known as ROMM RGB, it was developed by Kodak to have a
+    large gamut with photographic output in mind. Because of its gamut (wider
+    even than Wide Gamut RGB), primaries and white point, approximately 13% of
+    this colorspace -- including its green and blue primaries -- is made up of
+    [imaginary colors](https://en.wikipedia.org/wiki/Impossible_color#Imaginary_colors)
+  - sRGB - developed by HP and Microsoft in 1996 for use on monitors, printers,
+    and the nascent internet, and it is still the defined standard colorspace
+    for the web, and the assumed colorspace for images that are not otherwise
+    tagged. It has the smallest gamut, making it impractical for high quality
+    photo work, but excellent for portability and web images/design.
+  - Wide Gamut RGB - another RGB colorspace developed by Adobe. As its name
+    suggests, it is able to display and store a winder range of colors than
+    Adobe RGB or sRGB
+
+  When people talk about "RGB", especially in digital and web design, they
+  almost always mean "sRGB", so that is the RGB colorspace `Seurat` adopts as
+  default. This allows users to use the library as easily as possible, while
+  still providing more complexity if required.
+
 
   Standard RGB (sRGB) is a non-linear RGB colorspace used for screen displays
   and digital media. The non-linearity accounts for the fact that our eyes are
@@ -16,15 +74,19 @@ defmodule Seurat.Models.Rgb do
     light, and 1.0 is the highest displayable amount.
   - `blue`: the amount of blue light in the color, where 0.0 is no blue light,
     and 1.0 is the highest displayable amount.
+  - `profile` - the RGB color profile in which the red, green, and blue values
+    are defined. See `Seurat.Models.Rgb.Profile` for details. If not specified,
+    sRGB is assumed as the default.
 
   """
 
-  defstruct [:red, :green, :blue]
+  defstruct [:red, :green, :blue, :profile]
 
   @type t :: %__MODULE__{
           red: float,
           green: float,
-          blue: float
+          blue: float,
+          profile: Seurat.rgb_profile()
         }
 
   @doc """
@@ -32,16 +94,25 @@ defmodule Seurat.Models.Rgb do
 
   ## Examples
 
+  When no RGB profile is given, `Seurat` assumes sRGB
+
       iex> Rgb.new(0.5, 0.5, 1)
-      #Seurat.Models.Rgb<0.5, 0.5, 1.0>
+      #Seurat.Models.Rgb<0.5, 0.5, 1.0 (sRGB)>
+
+  If a profile is specificed, creates the color using that profile
+
+      iex> Rgb.new(0.5, 0, 1, :adobe)
+      #Seurat.Models.Rgb<0.5, 0.0, 1.0 (Adobe RGB)>
 
   """
-  @spec new(number, number, number) :: __MODULE__.t()
-  def new(red, green, blue) when is_number(red) and is_number(green) and is_number(blue) do
+  @spec new(number, number, number, Seurat.rgb_profile()) :: __MODULE__.t()
+  def new(red, green, blue, profile \\ :srgb)
+      when is_number(red) and is_number(green) and is_number(blue) do
     %__MODULE__{
       red: red / 1,
       green: green / 1,
-      blue: blue / 1
+      blue: blue / 1,
+      profile: profile
     }
   end
 
@@ -65,6 +136,42 @@ defmodule Seurat.Models.Rgb do
     r >= 0 and r <= 1 and
       g >= 0 and g <= 1 and
       b >= 0 and b <= 1
+  end
+
+  alias Seurat.Models.Rgb.Profile
+  alias Seurat.Conversions.{RgbXyzMatrix, ChromaticAdaptation}
+  alias Seurat.Utils.Matrix
+
+  @doc """
+  Converts an RGB color using one profile into another RGB profile
+
+  ## Examples
+
+      iex> adobe = Rgb.new(0.5, 0, 1, :adobe)
+      iex> Rgb.into(adobe, :srgb)
+      #Seurat.Models.Rgb<0.6991, 0.0, 1.0429 (sRGB)>
+
+  """
+  @spec into(__MODULE__.t(), Seurat.rgb_profile()) :: __MODULE__.t()
+  def into(%__MODULE__{} = color, target_colorspace) do
+    source_wp = Profile.white_point_for(color.profile)
+    target_wp = Profile.white_point_for(target_colorspace)
+
+    ca_m = ChromaticAdaptation.matrix_for(source_wp, target_wp)
+    out_m = RgbXyzMatrix.xyz_to_rgb(target_wp, target_colorspace)
+
+    m =
+      Matrix.multiply(
+        out_m,
+        Matrix.multiply(
+          ca_m,
+          RgbXyzMatrix.matrix(color.profile, source_wp)
+        )
+      )
+
+    [r, g, b] = Matrix.mulitply_vector([color.red, color.green, color.blue], m)
+
+    __MODULE__.new(r, g, b, target_colorspace)
   end
 
   use Seurat.Inspect, [:red, :green, :blue]

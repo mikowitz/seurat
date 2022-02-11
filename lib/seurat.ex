@@ -51,6 +51,14 @@ defmodule Seurat do
           | :d65_10degree
           | :d75_10degree
 
+  @type rgb_profile ::
+          :adobe
+          | :apple
+          | :linear_srgb
+          | :pro_photo
+          | :srgb
+          | :wide_gamut
+
   @spec to(color(), atom) :: color
   def to(color, target_colorspace) do
     Module.concat(
